@@ -38,7 +38,7 @@ def main():
 
     # Initalize the radar
     print("initinalizing radar")
-    radar = Radar(args.cfg, host_ip="192.168.33.42")
+    radar = Radar(args.cfg, host_ip="192.168.33.30")
     print("inited radar")
 
     params = radar.params

@@ -103,6 +103,8 @@ class RadarConfig(OrderedDict):
         # Calculate the number of samples
         n_samples = self["ADC_SAMPLES"]
 
+        n_frames = self['NUM_FRAMES']
+
         # Calculate the frame size
         frame_size = (
             n_samples * n_rx * n_chirps * 2 * (2 if adc_output_fmt > 0 else 1)
@@ -146,6 +148,7 @@ class RadarConfig(OrderedDict):
                 ("tx", tx),
                 ("n_tx", n_tx),
                 ("n_samples", n_samples),
+                ("n_frames", n_frames),
                 ("frame_size", frame_size),
                 ("frame_time", frame_time),
                 ("chirp_time", chirp_time),

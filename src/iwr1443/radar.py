@@ -1,11 +1,14 @@
 from datetime import datetime
+
+import numpy as np
 from .dcapub import DCAPub
 from .dsp import reshape_frame
 import argparse
+import os
 
 class Radar:
 
-    def __init__(self, cfg_path: str, reshape=True, host_ip: str = "192.168.33.30"):
+    def __init__(self, cfg_path: str, reshape=True, stamped_data_path= "", host_ip: str = "192.168.33.30"):
         """
         Initializes the radar object, starts recording, and publishes the data.
 
@@ -22,6 +25,10 @@ class Radar:
 
         self.config = self.radar.config
         self.params = self.radar.params
+        self.stamped_data_path = stamped_data_path
+        self.count = 0
+
+        
         print("[INFO] Radar connected. Params:")
         print(self.radar.config)
 
@@ -38,8 +45,18 @@ class Radar:
                 frame_data, new_frame = self.radar.update_frame_buffer()
 
                 if new_frame:
-                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    
+                    timestamp = datetime.now().strftime("%Y-%m-%d:%H:%M:%S")
 
+                    # saving the raw frame data (like mmWave studio does) to a timestamped_bin file
+                    day = datetime.now().strftime("%Y-%m-%d")
+                    folder = rf"{self.stamped_data_path}{day}"
+                    os.makedirs(folder, exist_ok=True)
+                    with open(f"{folder}\\adc_data{self.count}_{timestamp}.bin","wb") as f:
+                        raw_data = np.asarray(frame_data, dtype="<i2").ravel()
+                        raw_data.tofile(f)
+                        self.count += 1
+                    
                     # If reshaping is enabled, reshape the frame data
                     if self.reshape:
                         frame_data = reshape_frame(
@@ -60,6 +77,7 @@ class Radar:
 
         except KeyboardInterrupt:
             self.close()
+            
             print("[INFO] Stopping radar...")
 
     def read(self):
@@ -105,6 +123,7 @@ class Radar:
         Closes the radar connection and stops capturing data.
         """
         self.radar.dca1000.close()
+        
         print("[INFO] Radar connection closed.")
 
 

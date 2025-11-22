@@ -1,1 +1,5 @@
 *.pyc
+*.bin
+*\\stamped_frames\\*
+stamped_raw\*
+*\\stamped_raw\\*

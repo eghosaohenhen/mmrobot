@@ -49,10 +49,11 @@ class Radar:
                     timestamp = datetime.now().strftime("%Y-%m-%d:%H:%M:%S")
 
                     # saving the raw frame data (like mmWave studio does) to a timestamped_bin file
+                    ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # cuz windows hates colons
                     day = datetime.now().strftime("%Y-%m-%d")
                     folder = rf"{self.stamped_data_path}{day}"
                     os.makedirs(folder, exist_ok=True)
-                    with open(f"{folder}\\adc_data{self.count}_{timestamp}.bin","wb") as f:
+                    with open(f"{folder}\\adc_data{self.count}_{ts}.bin","wb") as f:
                         raw_data = np.asarray(frame_data, dtype="<i2").ravel()
                         raw_data.tofile(f)
                         self.count += 1
@@ -77,6 +78,7 @@ class Radar:
 
         except KeyboardInterrupt:
             self.close()
+            
             
             print("[INFO] Stopping radar...")
 

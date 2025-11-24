@@ -44,11 +44,12 @@ def get_created_modified_date(folder, timestamp):
 if __name__=='__main__':
     data_folder = 'C:\\ti\\mmwave_studio_02_01_01_00\\mmWaveStudio\\PostProc\\Data'
     current_ts = None
-    use_robot_comp = True
+    use_robot_comp = False
     use_optitrack = False
 
     cwd = os.getcwd()
     print(cwd)
+    
     resp = run_powershell(f"C:\\ti\\mmwave_studio_02_01_01_00\\mmWaveStudio\\PostProc\\DCA1000EVM_CLI_Control.exe fpga {cwd}\\cf.json")
     # print(resp.returncode)
     print(resp.stdout.decode("utf-8"))

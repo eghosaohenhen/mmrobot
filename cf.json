@@ -24,8 +24,8 @@
          "maxRecFileSize_MB": 1024,
          "sequenceNumberEnable": 1,
          "captureStopMode": "duration",
-         "captureStart_ms": 0,
-         "captureDuration_ms": 15000,
+         "captureStartTime_ms": 0,
+         "durationToCapture_ms": 15000,
          "bytesToCapture": 16384000
       }
    }

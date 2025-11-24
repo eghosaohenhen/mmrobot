@@ -123,7 +123,7 @@ class Radar:
         print(f"[INFO] Saved {len(frames)} frames to {bin_filename}")
         
         # Save metadata.json in the parent directory (unprocessed/radars/)
-        metadata_path = os.path.join(base_path, "..", "metadata.json")
+        metadata_path = os.path.join(base_path, f"metadata_{timestamp_compact}.json")
         metadata = {
             "capture_start_time": capture_start_time,
             "timestamp_compact": timestamp_compact,

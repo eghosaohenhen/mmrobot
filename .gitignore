@@ -7,3 +7,4 @@ stamped_raw\*
 stamped_processed\*
 *.pkl
 *.DS_Store
+*\\data\\*

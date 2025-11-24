@@ -53,7 +53,7 @@ if __name__=='__main__':
     # print(resp.returncode)
     print(resp.stdout.decode("utf-8"))
     resp = run_powershell(f"C:\\ti\\mmwave_studio_02_01_01_00\\mmWaveStudio\\PostProc\\DCA1000EVM_CLI_Control.exe record {cwd}\\cf.json")
-    # print(resp.returncode)
+    print(resp.returncode)
     print(resp.stdout.decode("utf-8"))
 
     

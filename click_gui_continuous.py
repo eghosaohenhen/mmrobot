@@ -74,7 +74,7 @@ if __name__=='__main__':
     port = 8080
     if use_robot_comp:
         clientSocket = socket.socket()
-        clientSocket.bind(('192.168.33.30',8077))
+        clientSocket.bind(('192.168.33.42',8077))  # Changed from 192.168.33.30 to match 1443_mmwavestudio_config.lua
         clientSocket.connect((ip,port))
     print ("connected to the server!")
     i = 0

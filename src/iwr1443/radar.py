@@ -111,10 +111,10 @@ class Radar:
         # Convert to int16 and save as .bin file
         raw_data = np.asarray(all_frames, dtype="<i2")
         
-        # Create timestamp string (compact format like MITO: YYYYMMDDHHMMSS)
-        from datetime import datetime
-        dt = datetime.fromtimestamp(capture_start_time)
-        timestamp_compact = dt.strftime("%Y%m%d%H%M%S")
+        # Create timestamp string using the full Unix timestamp (with microseconds)
+        # This ensures uniqueness even for captures within the same second
+        # Format: integer representation of time.time() * 100 (to include centiseconds)
+        timestamp_compact = str(int(capture_start_time * 100))
         
         bin_filename = os.path.join(base_path, f"adc_data{timestamp_compact}.bin")
         with open(bin_filename, "wb") as f:

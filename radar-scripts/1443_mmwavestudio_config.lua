@@ -19,13 +19,13 @@ PKT_LOG_PATH  = "C:\\Users\\mmwave\\Documents\\data\\pktlogfile.txt"
 NUM_TX = 1
 NUM_RX = 4
 
--- ProfileConfig
-START_FREQ = 77 -- GHz
-IDLE_TIME = 138 -- us
-RAMP_END_TIME = 62 -- us
-ADC_START_TIME = 6 --us
-FREQ_SLOPE = 60.012 -- MHz/us
-ADC_SAMPLES = 256
+-- ProfileConfig (Matching DataCaptureDemo_xWR_cli_continuous.lua)
+START_FREQ = 77.5 -- GHz (Desired start)
+IDLE_TIME = 100 -- us
+RAMP_END_TIME = 60 -- us
+ADC_START_TIME = 6 -- us
+FREQ_SLOPE = 58.594 -- MHz/us (calculated from 77.5-80.5 GHz sweep)
+ADC_SAMPLES = 512 -- Matching DataCapture script
 SAMPLE_RATE = 10000 -- ksps
 RX_GAIN = 30 -- dB
 
@@ -34,14 +34,12 @@ RX_GAIN = 30 -- dB
 -- the setup is such that we receive Rx information in the order of Tx1->Tx3->Tx2
 -- this translates to getting all the azimuth information first (indices [0,7]) then getting any elevation information (indices [8,11])
 
--- FrameConfig
+-- FrameConfig (Matching DataCapture script)
 START_CHIRP_TX = 0
-END_CHIRP_TX = 0 -- 2 for 1843 
-NUM_FRAMES = 50 -- Set this to 0 to continuously stream data
-CHIRP_LOOPS = 8 -- 
-PERIODICITY = 10 -- ms
-
--- CHIRP DURATION = (IDLE_TIME + RAMP_END_TIME) * 1e-6
+END_CHIRP_TX = 0 -- Single chirp per frame
+NUM_FRAMES = 4000 -- Matching DataCapture script (was 50)
+CHIRP_LOOPS = 1 -- Single loop (was 8)
+PERIODICITY = 3 -- ms (Matching DataCapture script, was 10)-- CHIRP DURATION = (IDLE_TIME + RAMP_END_TIME) * 1e-6
 -- CHIRP_SAMPLE_RATE = 1 / CHIRP_DURATION
 -----------------------------------------------------------
 

@@ -3,3 +3,7 @@
 *\\stamped_frames\\*
 stamped_raw\*
 *\\stamped_raw\\*
+*\\stamped_processed\\*
+stamped_processed\*
+*.pkl
+*.DS_Store

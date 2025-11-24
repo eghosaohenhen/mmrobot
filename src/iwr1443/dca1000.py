@@ -82,6 +82,8 @@ class DCA1000:
 
     def start_capture(self):
         if not self.capturing:
+            import time
+            self.capture_start_time = time.perf_counter()  # High precision
             self._send_cmd(DCA1000.cmds["RECORD_START_CMD_CODE"])
             print(self._recv_cmd())
             self.capturing = True
@@ -97,7 +99,11 @@ class DCA1000:
         seqn, bytec = struct.unpack("<IIxx", msg[:10])
 
         return seqn, bytec, msg[10:]
+    def recv_ts_data(self):
+        msg, _ = self.data_socket.recvfrom(2048)
+        seqn, bytec, ts = struct.unpack("<IIQ", msg[:16])
 
+        return seqn, bytec, ts, msg[16:]
     def close(self):
         if hasattr(self, "cmd_socket"):
             self.cmd_socket.close()

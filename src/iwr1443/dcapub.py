@@ -51,9 +51,14 @@ class DCAPub:
         self.dca1000.capturing = True
 
         if hasattr(self.dca1000, "data_socket"):
+            # Increase buffer size significantly to hold all frames
+            buffer_size = 131071 * 20  # Increase from 5x to 20x
             self.dca1000.data_socket.setsockopt(
-                socket.SOL_SOCKET, socket.SO_RCVBUF, 131071 * 5
+                socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size
             )
+            # Verify the buffer size was set
+            actual_size = self.dca1000.data_socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF)
+            print(f"[INFO] UDP receive buffer set to {actual_size} bytes (requested {buffer_size})")
 
         self.frame_buffer = FrameBuffer(
             2 * self.params["frame_size"], self.params["frame_size"]

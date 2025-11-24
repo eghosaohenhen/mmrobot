@@ -33,54 +33,76 @@ class Radar:
         print(self.radar.config)
 
         self.reshape = reshape
-
+    # In radar.py - when you start capturing
     def run_polling(self, cb=None):
         print("[INFO] Begin capturing data!")
-
-        # Flush the data socket to clear any old data
         self.radar.dca1000.flush_data_socket()
-
+        
+        # ONE timestamp for the whole capture session
+        import time
+        capture_start_time = time.time()  # Or datetime.now().timestamp()
+        
+        frames = []
         try:
-            while True:
+            while len(frames) < self.params['n_frames']:
                 frame_data, new_frame = self.radar.update_frame_buffer()
-
                 if new_frame:
-                    
-                    timestamp = datetime.now().strftime("%Y-%m-%d:%H:%M:%S")
-
-                    # saving the raw frame data (like mmWave studio does) to a timestamped_bin file
-                    ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # cuz windows hates colons
-                    day = datetime.now().strftime("%Y-%m-%d")
-                    folder = rf"{self.stamped_data_path}{day}"
-                    os.makedirs(folder, exist_ok=True)
-                    with open(f"{folder}\\adc_data{self.count}_{ts}.bin","wb") as f:
-                        raw_data = np.asarray(frame_data, dtype="<i2").ravel()
-                        raw_data.tofile(f)
-                        self.count += 1
-                    
-                    # If reshaping is enabled, reshape the frame data
-                    if self.reshape:
-                        frame_data = reshape_frame(
-                            frame_data,
-                            self.params["n_chirps"],
-                            self.params["n_samples"],
-                            self.params["n_rx"],
-                            self.params["n_tx"],
-                        )
-
-                    msg = {
-                        "data": frame_data,
-                        "timestamp": timestamp,
-                    }
-
-                    if cb:
-                        cb(msg)
-
+                    frames.append(frame_data)
+            
+            # Save all frames with the ONE start timestamp
+            self.save_frames(frames, capture_start_time)
         except KeyboardInterrupt:
             self.close()
             
             
             print("[INFO] Stopping radar...")
+    # def run_polling(self, cb=None):
+    #     print("[INFO] Begin capturing data!")
+
+    #     # Flush the data socket to clear any old data
+    #     self.radar.dca1000.flush_data_socket()
+
+    #     try:
+    #         while True:
+    #             frame_data, new_frame = self.radar.update_frame_buffer()
+
+    #             if new_frame:
+                    
+                    
+
+    #                 # saving the raw frame data (like mmWave studio does) to a timestamped_bin file
+    #                 ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # cuz windows hates colons
+    #                 day = datetime.now().strftime("%Y-%m-%d")
+    #                 folder = rf"{self.stamped_data_path}{day}"
+    #                 raw_data = np.asarray(frame_data, dtype="<i2").ravel()
+    #                 os.makedirs(folder, exist_ok=True)
+    #                 with open(f"{folder}\\adc_data{self.count}_{ts}.bin","wb") as f:
+    #                     raw_data.tofile(f)
+    #                     self.count += 1
+                    
+    #                 # If reshaping is enabled, reshape the frame data
+    #                 # if self.reshape:
+    #                 #     frame_data = reshape_frame(
+    #                 #         frame_data,
+    #                 #         self.params["n_chirps"],
+    #                 #         self.params["n_samples"],
+    #                 #         self.params["n_rx"],
+    #                 #         self.params["n_tx"],
+    #                 #     )
+
+    #                 msg = {
+    #                     "data": raw_data,
+    #                     "timestamp": timestamp,
+    #                 }
+
+    #                 if cb:
+    #                     cb(msg)
+
+        # except KeyboardInterrupt:
+        #     self.close()
+            
+            
+        #     print("[INFO] Stopping radar...")
 
     def read(self):
         """

@@ -108,7 +108,7 @@ if __name__=='__main__':
             # print("2: ", resp)
             time.sleep(0.5/2)
 
-            pyautogui.click(40, 825) # Original, Working after adding optitrack
+            pyautogui.click(22, 995) # Original, Working after adding optitrack
             # pyautogui.click(30, 940) # New resolution after member event
             # pyautogui.click(30, 700) # New resolution after member event
 

@@ -20,7 +20,7 @@ NUM_TX = 1
 NUM_RX = 4
 
 -- ProfileConfig (Matching DataCaptureDemo_xWR_cli_continuous.lua)
-START_FREQ = 77.5 -- GHz (Desired start)
+START_FREQ = 77.0 -- GHz (Desired start)
 IDLE_TIME = 100 -- us
 RAMP_END_TIME = 60 -- us
 ADC_START_TIME = 6 -- us

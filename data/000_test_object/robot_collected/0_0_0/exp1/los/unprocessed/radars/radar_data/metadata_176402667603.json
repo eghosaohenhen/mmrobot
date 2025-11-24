@@ -1,0 +1,12 @@
+{
+    "capture_start_time": 1764026676.0327978,
+    "timestamp_compact": "176402667603",
+    "datetime_strftime": "2025-11-24 15:24:36.032785",
+    "num_frames": 4000,
+    "num_samples": 512,
+    "num_chirps": 1,
+    "num_rx": 4,
+    "num_tx": 3,
+    "periodicity": 0,
+    "sweep_time": 0
+}

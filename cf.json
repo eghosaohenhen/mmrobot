@@ -12,21 +12,21 @@
       "DCA1000DataPort": 4098
     },
     "ethernetConfigUpdate": {
-      "systemIPAddress": "192.168.33.30",
+      "systemIPAddress": "192.168.33.42",
       "DCA1000IPAddress": "192.168.33.180",
-      "DCA1000MACAddress": "12.34.56.78.90.12",
+      "DCA1000MACAddress": "12:34:56:78:90:12",
       "DCA1000ConfigPort": 4096,
       "DCA1000DataPort": 4098
     },
     "captureConfig": {
-      "fileBasePath": "C:\\Users\\mmwave\\Documents\\data",
+      "fileBasePath": "C:\\ti\\mmwave_studio_02_01_01_00\\mmWaveStudio\\PostProc\\Data\\",
       "filePrefix": "adc_data",
       "maxRecFileSize_MB": 1024,
       "sequenceNumberEnable": 1,
-      "captureStopMode": "infinite",
-      "bytesToCapture": 4000,
-      "durationToCapture_ms": 4000,
-      "framesToCapture": 40
+      "captureStopMode": "duration",
+      "bytesToCapture": 16384000,
+      "durationToCapture_ms": 15000,
+      "framesToCapture": 4000
     },
     "dataFormatConfig": {
       "MSBToggle": 0,

@@ -52,10 +52,15 @@ class DCAPub:
 
         if hasattr(self.dca1000, "data_socket"):
             # Increase buffer size significantly to hold all frames
-            buffer_size = 131071 * 20  # Increase from 5x to 20x
-            self.dca1000.data_socket.setsockopt(
-                socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size
-            )
+            # For 4000 frames: 4000 * 4096 bytes = 16.384 MB
+            # Set to 50x to ensure no packet loss
+            buffer_size = 131071 * 50  # ~6.5 MB buffer
+            try:
+                self.dca1000.data_socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size
+                )
+            except OSError as e:
+                print(f"[WARN] Could not set full buffer size: {e}")
             # Verify the buffer size was set
             actual_size = self.dca1000.data_socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF)
             print(f"[INFO] UDP receive buffer set to {actual_size} bytes (requested {buffer_size})")

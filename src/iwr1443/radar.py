@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import numpy as np
+import socket
 from .dcapub import DCAPub
 from .dsp import reshape_frame
 import argparse
@@ -62,19 +63,43 @@ class Radar:
         
         frames = []
         try:
+            no_new_frame_count = 0
+            max_no_frame_attempts = 100  # Allow 100 attempts with no new frame before timeout
+            
             while len(frames) < self.params['n_frames']:
-                frame_data, new_frame = self.radar.update_frame_buffer()
-                if new_frame and len(frames) == 0:
-                    # Store the exact datetime of the first frame capture
-                    self.datetime_start_time = datetime.now()
-                    self.capture_start_time = time.time()
-                if new_frame:
-                    frames.append(frame_data)
-                    print(f"[INFO] Captured frame {len(frames)}/{self.params['n_frames']}")
+                try:
+                    frame_data, new_frame = self.radar.update_frame_buffer()
+                    
+                    if new_frame and len(frames) == 0:
+                        # Store the exact datetime of the first frame capture
+                        self.datetime_start_time = datetime.now()
+                        self.capture_start_time = time.time()
+                    
+                    if new_frame:
+                        frames.append(frame_data)
+                        no_new_frame_count = 0  # Reset counter on successful frame
+                        print(f"[INFO] Captured frame {len(frames)}/{self.params['n_frames']}")
+                    else:
+                        no_new_frame_count += 1
+                        if no_new_frame_count >= max_no_frame_attempts:
+                            print(f"[WARN] No new frames received after {max_no_frame_attempts} attempts")
+                            print(f"[INFO] Captured {len(frames)}/{self.params['n_frames']} frames before timeout")
+                            break
+                            
+                except socket.timeout:
+                    print(f"[ERROR] Socket timeout! Captured {len(frames)}/{self.params['n_frames']} frames")
+                    break
+                except Exception as e:
+                    print(f"[ERROR] Error receiving frame: {e}")
+                    break
             
             # Save all frames with the ONE start timestamp
-            self.save_frames(frames, self.datetime_start_time, self.capture_start_time)
-            print(f"[INFO] Successfully saved {len(frames)} frames!")
+            if len(frames) > 0:
+                self.save_frames(frames, self.datetime_start_time, self.capture_start_time)
+                print(f"[INFO] Successfully saved {len(frames)} frames!")
+            else:
+                print("[ERROR] No frames captured!")
+                
         except KeyboardInterrupt:
             self.close()
             print("[INFO] Stopping radar...")
@@ -111,10 +136,9 @@ class Radar:
         # Convert to int16 and save as .bin file
         raw_data = np.asarray(all_frames, dtype="<i2")
         
-        # Create timestamp string using the full Unix timestamp (with microseconds)
-        # This ensures uniqueness even for captures within the same second
-        # Format: integer representation of time.time() * 100 (to include centiseconds)
-        timestamp_compact = str(int(capture_start_time * 100))
+        # Create timestamp string using Unix timestamp
+        # Use integer part of timestamp for filename
+        timestamp_compact = str(int(capture_start_time))
         
         bin_filename = os.path.join(base_path, f"adc_data{timestamp_compact}.bin")
         with open(bin_filename, "wb") as f:

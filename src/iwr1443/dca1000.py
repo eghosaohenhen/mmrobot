@@ -54,6 +54,8 @@ class DCA1000:
         if host_data_port:
             self.data_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.data_socket.bind(self.host_data_addr)
+            # Set a longer timeout for large frame captures (30 seconds)
+            self.data_socket.settimeout(30.0)
             self.data_socket.setblocking(True)
 
         self.capturing = False

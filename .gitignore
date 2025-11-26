@@ -8,3 +8,4 @@ stamped_processed\*
 *.pkl
 *.DS_Store
 *\\data\\*
+data/*

@@ -102,21 +102,21 @@ You have **two options** for collecting radar data, both save data in MITO-compa
 
 ```bash
 # Basic usage
-uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua \
+uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua ^
   --obj_id 000 --obj_name test_object
 
 # With experiment parameters
-uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua \
-  --obj_id 001 --obj_name apple \
-  --x_angle 0 --y_angle 0 --z_angle 0 \
+uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua ^
+  --obj_id 001 --obj_name apple ^
+  --x_angle 0 --y_angle 0 --z_angle 0 ^
   --exp_num 1 --los
 
 # For non-line-of-sight
-uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua \
-  --obj_id 002 --obj_name coffee_mug \
+uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua ^
+  --obj_id 002 --obj_name coffee_mug ^
   --exp_num 1 --nlos
 ```
-
+uv run imaging.py --cfg radar-scripts/1443_mmwavestudio_config.lua --obj_id 001 --obj_name apple --x_angle 0 --y_angle 0 --z_angle 0 --exp_num 1 --los
 ### Command-Line Arguments
 
 | Argument | Type | Default | Description |
@@ -246,24 +246,24 @@ If you collected data with Method 2 (GUI automation), use the transfer script:
 
 ```bash
 # Basic transfer
-python transfer_data_to_drive.py \
-  --source "C:\ti\mmwave_studio_02_01_01_00\mmWaveStudio\PostProc\Data" \
+python transfer_data_to_drive.py ^
+  --source "C:\ti\mmwave_studio_02_01_01_00\mmWaveStudio\PostProc\Data" ^
   --obj_id 000 --obj_name test_object
 
 # With custom destination
-python transfer_data_to_drive.py \
-  --source "C:\path\to\data" \
-  --dest "D:\OneDrive\Documents\fall2025\MAS.361\data" \
-  --obj_id 001 --obj_name apple \
+python transfer_data_to_drive.py ^
+  --source "C:\path\to\data" ^
+  --dest "D:\OneDrive\Documents\fall2025\MAS.361\data" ^
+  --obj_id 001 --obj_name apple ^
   --exp_num 1 --los
 
 # Transfer specific timestamp only
-python transfer_data_to_drive.py \
-  --obj_id 000 --obj_name test \
+python transfer_data_to_drive.py ^
+  --obj_id 000 --obj_name test ^
   --timestamp 173235678912
 
 # Dry run (preview without copying)
-python transfer_data_to_drive.py \
+python transfer_data_to_drive.py ^
   --obj_id 000 --obj_name test --dry_run
 ```
 

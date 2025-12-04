@@ -97,7 +97,17 @@ class DCA1000:
             self.capturing = False
 
     def recv_data(self):
-        msg, _ = self.data_socket.recvfrom(2048)
+        try: 
+            timeout=None
+            try:
+                timeout = self.data_socket.gettimeout()
+            except Exception as e:
+                print("[DCA1000] failed to get timeout")
+            if timeout is not None: 
+                print(f"[DCA1000] recv_data: waiting on data_socket (timeout={timeout}s)")
+            msg, _ = self.data_socket.recvfrom(2048)
+        except socket.timeout: 
+            print("[DCA1000] recv")
         seqn, bytec = struct.unpack("<IIxx", msg[:10])
 
         return seqn, bytec, msg[10:]

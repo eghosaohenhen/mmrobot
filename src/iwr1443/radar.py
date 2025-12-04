@@ -45,6 +45,7 @@ class Radar:
         self.count = 0
         self.capture_start_time = None
         self.datetime_start_time = None
+        self.start = False 
 
         
         print("[INFO] Radar connected. Params:")
@@ -62,6 +63,8 @@ class Radar:
 
         import time
 
+        last_frame_time = time.time()
+
         frames = []
         try:
             
@@ -70,6 +73,8 @@ class Radar:
                     frame_data, new_frame = self.radar.update_frame_buffer()
                     
                     if new_frame:
+                        if not self.start:
+                            self.start = True 
                         last_frame_time = time.time()
                         frames.append(frame_data)
                         
@@ -78,7 +83,7 @@ class Radar:
                     
 
                     # If no new frame was returned, check the watchdog
-                    if time.time() - last_frame_time >= max_no_frame_seconds:
+                    if time.time() - last_frame_time >= max_no_frame_seconds and self.start:
                         print(f"[WARN] No new frames received for {max_no_frame_seconds} seconds")
                         print(f"[INFO] Captured {len(frames)}/{self.params['n_frames']} frames before timeout")
                         break

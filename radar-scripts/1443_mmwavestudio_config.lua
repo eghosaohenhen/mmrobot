@@ -37,9 +37,9 @@ RX_GAIN = 30 -- dB
 -- FrameConfig (Matching DataCapture script)
 START_CHIRP_TX = 0
 END_CHIRP_TX = 0 -- Single chirp per frame
-NUM_FRAMES = 4000 -- Matching DataCapture script (was 50)
+NUM_FRAMES = 667 -- Matching DataCapture script (was 50)
 CHIRP_LOOPS = 1 -- Single loop (was 8)
-PERIODICITY = 3 -- ms (Matching DataCapture script, was 10)-- CHIRP DURATION = (IDLE_TIME + RAMP_END_TIME) * 1e-6
+PERIODICITY = 10 -- ms (Matching DataCapture script, was 10)-- CHIRP DURATION = (IDLE_TIME + RAMP_END_TIME) * 1e-6
 -- CHIRP_SAMPLE_RATE = 1 / CHIRP_DURATION
 -----------------------------------------------------------
 

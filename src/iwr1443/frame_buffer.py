@@ -26,7 +26,7 @@ class FrameBuffer:
         assert (
             capacity % frame_size
         ) == 0, "Capacity must be a multiple of frame size."
-
+        
         self.buffer = np.zeros(capacity, dtype=np.int8)
         self.frame_size = frame_size
         self.curr_idx = 0

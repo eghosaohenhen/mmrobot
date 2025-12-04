@@ -7,6 +7,8 @@ import sys
 from scipy.fft import fft, fftfreq
 import os
 from utils import *
+from multiprocessing import Process, Pipe
+import time
 
 # Base data path - will create MITO folder structure under this
 DATA_PATH = os.path.join(get_root_path(), "data")
@@ -72,12 +74,7 @@ def main():
 
     params = radar.params
 
-    c = 3e8  # speed of light - m/s
-    SAMPLES_PER_CHIRP = params["n_samples"]  # adc number of samples per chirp
-    SAMPLE_RATE = params["sample_rate"]  # digout sample rate in Hz
-    NUM_FRAMES = params["n_frames"]
-    FREQ_SLOPE = params["chirp_slope"]  # frequency slope in Hz (/s)
-
+    
     # Initalize the GUI
     # app = QtWidgets.QApplication(sys.argv)
     # dist_plot = DistancePlot(params["range_res"])

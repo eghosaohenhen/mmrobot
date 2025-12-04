@@ -27,9 +27,11 @@ class Radar:
         """
         print(f"[INFO] Starting radar node with config: {cfg_path}")
 
+        # Configure DCAPub with a conservative socket timeout so recv won't block forever.
         self.radar = DCAPub(
             cfg=cfg_path,
-            host_ip=host_ip
+            host_ip=host_ip,
+            socket_timeout=2.0,
         )
 
         self.config = self.radar.config
@@ -51,44 +53,45 @@ class Radar:
         self.reshape = reshape
     
     # In radar.py - when you start capturing
-    def run_polling(self, cb=None):
+    def run_polling(self, cb=None, max_no_frame_seconds: float = 10.0):
+        """Capture a fixed number of frames, aborting if no new frames arrive for
+        `max_no_frame_seconds` to avoid hanging when the stream stalls.
+        """
         print("[INFO] Begin capturing data!")
         self.radar.dca1000.flush_data_socket()
-        # self.datetime_start_time = datetime.now()
-        
-        # ONE timestamp for the whole capture session (includes microseconds)
+
         import time
-        # self.capture_start_time = time.time()  # Unix timestamp with microseconds
-        
-        
+
         frames = []
         try:
-            no_new_frame_count = 0
-            max_no_frame_attempts = 100  # Allow 100 attempts with no new frame before timeout
             
             while len(frames) < self.params['n_frames']:
                 try:
                     frame_data, new_frame = self.radar.update_frame_buffer()
                     
-                    if new_frame and len(frames) == 0:
-                        # Store the exact datetime of the first frame capture
-                        self.datetime_start_time = datetime.now()
-                        self.capture_start_time = time.time()
-                    
                     if new_frame:
+                        last_frame_time = time.time()
                         frames.append(frame_data)
-                        no_new_frame_count = 0  # Reset counter on successful frame
+                        
                         print(f"[INFO] Captured frame {len(frames)}/{self.params['n_frames']}")
-                    else:
-                        no_new_frame_count += 1
-                        if no_new_frame_count >= max_no_frame_attempts:
-                            print(f"[WARN] No new frames received after {max_no_frame_attempts} attempts")
-                            print(f"[INFO] Captured {len(frames)}/{self.params['n_frames']} frames before timeout")
-                            break
-                            
+                        continue
+                    
+
+                    # If no new frame was returned, check the watchdog
+                    if time.time() - last_frame_time >= max_no_frame_seconds:
+                        print(f"[WARN] No new frames received for {max_no_frame_seconds} seconds")
+                        print(f"[INFO] Captured {len(frames)}/{self.params['n_frames']} frames before timeout")
+                        break
+
                 except socket.timeout:
                     print(f"[ERROR] Socket timeout! Captured {len(frames)}/{self.params['n_frames']} frames")
-                    break
+                    # keep waiting until watchdog expires (or break immediately)
+                    if time.time() - last_frame_time >= max_no_frame_seconds:
+                        break
+                    else:
+                        continue
+                except KeyboardInterrupt:
+                    print("[INFO] KeyboardInterrupt received, aborting capture") 
                 except Exception as e:
                     print(f"[ERROR] Error receiving frame: {e}")
                     break
@@ -100,9 +103,15 @@ class Radar:
             else:
                 print("[ERROR] No frames captured!")
                 
-        except KeyboardInterrupt:
-            self.close()
-            print("[INFO] Stopping radar...")
+        except Exception as e:
+            print(f"[ERROR] Exception during frame capture: {e}")
+        finally:
+            # Ensure the DCA connection is closed on exit
+            try:
+                self.close()
+            except Exception:
+                print("[WARN] Exception during radar close")
+                pass
     
     def save_frames(self, frames, datetime_start_time, capture_start_time):
         """
@@ -165,53 +174,7 @@ class Radar:
             json.dump(metadata, f, indent=4)
         
         print(f"[INFO] Saved metadata to {metadata_path}")
-    # def run_polling(self, cb=None):
-    #     print("[INFO] Begin capturing data!")
 
-    #     # Flush the data socket to clear any old data
-    #     self.radar.dca1000.flush_data_socket()
-
-    #     try:
-    #         while True:
-    #             frame_data, new_frame = self.radar.update_frame_buffer()
-
-    #             if new_frame:
-                    
-                    
-
-    #                 # saving the raw frame data (like mmWave studio does) to a timestamped_bin file
-    #                 ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") # cuz windows hates colons
-    #                 day = datetime.now().strftime("%Y-%m-%d")
-    #                 folder = rf"{self.stamped_data_path}{day}"
-    #                 raw_data = np.asarray(frame_data, dtype="<i2").ravel()
-    #                 os.makedirs(folder, exist_ok=True)
-    #                 with open(f"{folder}\\adc_data{self.count}_{ts}.bin","wb") as f:
-    #                     raw_data.tofile(f)
-    #                     self.count += 1
-                    
-    #                 # If reshaping is enabled, reshape the frame data
-    #                 # if self.reshape:
-    #                 #     frame_data = reshape_frame(
-    #                 #         frame_data,
-    #                 #         self.params["n_chirps"],
-    #                 #         self.params["n_samples"],
-    #                 #         self.params["n_rx"],
-    #                 #         self.params["n_tx"],
-    #                 #     )
-
-    #                 msg = {
-    #                     "data": raw_data,
-    #                     "timestamp": timestamp,
-    #                 }
-
-    #                 if cb:
-    #                     cb(msg)
-
-        # except KeyboardInterrupt:
-        #     self.close()
-            
-            
-        #     print("[INFO] Stopping radar...")
 
     def read(self):
         """

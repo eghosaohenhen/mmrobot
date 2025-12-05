@@ -46,6 +46,7 @@ class Radar:
         self.capture_start_time = None
         self.datetime_start_time = None
         self.start = False 
+        
 
         
         print("[INFO] Radar connected. Params:")
@@ -63,18 +64,25 @@ class Radar:
 
         import time
 
-        last_frame_time = time.time()
+        
+        
+            
+            
 
         frames = []
         try:
             
-            while len(frames) < self.params['n_frames']:
+            while True:
                 try:
                     frame_data, new_frame = self.radar.update_frame_buffer()
                     
                     if new_frame:
                         if not self.start:
                             self.start = True 
+                            dt = self.radar.dca1000.get_start_time()
+                            cb(dt)
+                            
+                            
                         last_frame_time = time.time()
                         frames.append(frame_data)
                         
@@ -82,19 +90,7 @@ class Radar:
                         continue
                     
 
-                    # If no new frame was returned, check the watchdog
-                    if time.time() - last_frame_time >= max_no_frame_seconds and self.start:
-                        print(f"[WARN] No new frames received for {max_no_frame_seconds} seconds")
-                        print(f"[INFO] Captured {len(frames)}/{self.params['n_frames']} frames before timeout")
-                        break
-
-                except socket.timeout:
-                    print(f"[ERROR] Socket timeout! Captured {len(frames)}/{self.params['n_frames']} frames")
-                    # keep waiting until watchdog expires (or break immediately)
-                    if time.time() - last_frame_time >= max_no_frame_seconds:
-                        break
-                    else:
-                        continue
+                    
                 except KeyboardInterrupt:
                     print("[INFO] KeyboardInterrupt received, aborting capture") 
                 except Exception as e:
@@ -102,14 +98,16 @@ class Radar:
                     break
             
             # Save all frames with the ONE start timestamp
-            if len(frames) > 0:
-                self.save_frames(frames, self.datetime_start_time, self.capture_start_time)
-                print(f"[INFO] Successfully saved {len(frames)} frames!")
+            if self.start:
+                print(f"[INFO] I got {len(frames)} frames...")
             else:
                 print("[ERROR] No frames captured!")
-                
+        except KeyboardInterrupt:
+            print("[INFO] Stopping frame capture...")
+            self.close()
         except Exception as e:
             print(f"[ERROR] Exception during frame capture: {e}")
+            self.close()
         finally:
             # Ensure the DCA connection is closed on exit
             try:

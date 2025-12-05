@@ -8,7 +8,7 @@ from scipy.fft import fft, fftfreq
 import os
 from utils import *
 from multiprocessing import Process, Pipe
-import time
+import time, datetime
 
 # Base data path - will create MITO folder structure under this
 DATA_PATH = os.path.join(get_root_path(), "data")
@@ -60,9 +60,91 @@ def main():
         is_los=is_los
     )
     print("Radar initialized successfully!")
+    metadata = {}
+    def save_metadata():
+        """
+        Saves all frames in MITO-compatible folder structure.
+        
+        Args:
+            frames (list): List of frame data arrays
+            TODO
+        """
+        # Create MITO folder structure
+        x, y, z = (args.x_angle, args.y_angle, args.z_angle)
+        los_folder = "los" 
+        
+        # Path: data/{obj_id}_{obj_name}/robot_collected/{x}_{y}_{z}/exp{N}/{los/nlos}/unprocessed/radars/radar_data/
+        base_path = os.path.join(
+            DATA_PATH,
+            f"{args.obj_id}_{args.obj_name}",
+            "robot_collected",
+            f"{x}_{y}_{z}",
+            f"exp{args.exp_num}",
+            los_folder,
+            "unprocessed",
+            "radars",
+            "radar_data"
+        )
+        os.makedirs(base_path, exist_ok=True)
+        
+        additional_metadata = {
+                "object_id": args.obj_id,
+                "object_name": args.obj_name,
+                "angles": (args.x_angle, args.y_angle, args.z_angle),
+                "experiment_number": args.exp_num,
+                "line_of_sight": is_los
+        }
+        metadata.update(additional_metadata)
+        
+        # Save metadata.json in the parent directory (unprocessed/radars/)
+        metadata_path = os.path.join(base_path, f"metadata_{metadata['timestamp_compact']}.json")
+        
+        
+        with open(metadata_path, "w") as f:
+            json.dump(metadata, f, indent=4)
+        
+        print(f"[INFO] Saved metadata {metadata} to {metadata_path}")
+
+    def create_metadata(start_frame_time):
+        
+        
+        params = radar.params
+        config = radar.config
+        
+        # datetime object
+        
+        capture_start_time = datetime.datetime.fromtimestamp(start_frame_time)
+       
+        metadata = {
+            "capture_start_time": datetime.strftime(capture_start_time, "%Y-%m-%d %H:%M:%S%f"),
+            "timestamp_compact": start_frame_time,
+            "datetime_strftime": datetime.strftime(capture_start_time, "%Y-%m-%d %H:%M:%S%f"),
+            "rx": params['rx'],
+            "tx": params['tx'],
+            "freq_slope": params.get('chirp_slope', 0), # Hz/s divide by 1e12 to get MHz/us
+            "sample_rate": params['sample_rate'], # ksps to sps
+            "frame_size": params['frame_size'], # For each chrip we collect n_samples for each rx antenna where each sample is 2 bytes and we collect I and Q if complex
+            "num_frames": params['n_frames'],
+            "num_samples": params['n_samples'],
+            "num_chirps": params['n_chirps'],
+            "num_rx": params['n_rx'],
+            "num_tx": params['n_tx'],
+            "periodicity": params["frame_time"], # in ms
+            "sweep_time": params["t_sweep"], # NOTEin seconds 
+        }
+        
+        print(f"[INFO] Created metadata {metadata}")
+        check()
+        # return metadata
+
+    def check():
+        if metadata == {}:
+            print("[ERROR] Metadata is empty! some global variable issue?")
+        else:
+            print("[INFO] Metadata is populated.")
 
     
-    radar.run_polling(cb=generic_cb)
+    radar.run_polling(cb=create_metadata)
 
     
     # Initalize the GUI

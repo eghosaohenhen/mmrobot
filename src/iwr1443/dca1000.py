@@ -85,11 +85,17 @@ class DCA1000:
     def start_capture(self):
         if not self.capturing:
             import time
-            self.capture_start_time = time.perf_counter()  # High precision
+            self.capture_start_time = time.time()
             self._send_cmd(DCA1000.cmds["RECORD_START_CMD_CODE"])
             print(self._recv_cmd())
             self.capturing = True
-
+    def get_start_time(self):
+        return self.capture_start_time
+    def get_start_datetime(self):
+        import datetime
+        if self.capture_start_time is None:
+            return None
+        return datetime.datetime.fromtimestamp(self.capture_start_time)
     def stop_capture(self):
         if self.capturing:
             self._send_cmd(DCA1000.cmds["RECORD_STOP_CMD_CODE"])

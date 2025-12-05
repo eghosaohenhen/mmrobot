@@ -13,9 +13,12 @@ DUMP_DATA_PATH = "C:\\Users\\mmwave\\Documents\\data\\adc_data_RAW_0.bin"
 PKT_LOG_PATH  = "C:\\Users\\mmwave\\Documents\\data\\pktlogfile.txt"
 
 
+
 n_file_path = "C:\\ti\\mmwave_studio_02_01_01_00\\mmWaveStudio"
 data_path     = file_path.."\\PostProc\\Data"
-adc_data_path = data_path.."\\adc_data"..os.time()..".bin"
+
+new_data_path = "C:\\Users\\mmwave\\Documents\\data"
+-- adc_data_path = data_path.."\\adc_data"..os.time()..".bin"
 
 --------------------------------------------
 
@@ -99,7 +102,7 @@ ar1.CaptureCardConfig_PacketDelay(25)
 -------- https://www.google.com/search?q=everything+is+fine+meme+spongebob&rlz=1C1CHBF_enUS794US794&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiBk7vfw9DjAhWVG80KHTdsDnoQ_AUIESgB&biw=1536&bih=722#imgrc=7BHtSeLSvvNceM: --------
 
 
-ar1.CaptureCardConfig_StartRecord(data_path.."\\adc_data"..os.time()..".bin", 1)
+ar1.CaptureCardConfig_StartRecord(new_data_path.."\\adc_data"..os.time()..".bin", 1)
 ar1.StartFrame()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
